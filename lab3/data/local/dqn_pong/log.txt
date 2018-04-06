@@ -1,0 +1,54 @@
+---------------------------------------
+| Iteration               | 0         |
+| Steps                   | 1.02e+06  |
+| Epsilon                 | 0.05      |
+| Episodes                | 8         |
+| AverageReturn           | -17.875   |
+| AverageDiscountedReturn | -0.64587  |
+| TDError^2               | 0.0050355 |
+---------------------------------------
+---------------------------------------
+| Iteration               | 1         |
+| Steps                   | 1.03e+06  |
+| Epsilon                 | 0.05      |
+| Episodes                | 12        |
+| AverageReturn           | -18.4     |
+| AverageDiscountedReturn | -0.79135  |
+| TDError^2               | 0.0048973 |
+---------------------------------------
+---------------------------------------
+| Iteration               | 2         |
+| Steps                   | 1.04e+06  |
+| Epsilon                 | 0.05      |
+| Episodes                | 16        |
+| AverageReturn           | -18.4     |
+| AverageDiscountedReturn | -0.59509  |
+| TDError^2               | 0.0044589 |
+---------------------------------------
+---------------------------------------
+| Iteration               | 3         |
+| Steps                   | 1.05e+06  |
+| Epsilon                 | 0.05      |
+| Episodes                | 20        |
+| AverageReturn           | -18.4     |
+| AverageDiscountedReturn | -0.47113  |
+| TDError^2               | 0.0052723 |
+---------------------------------------
+---------------------------------------
+| Iteration               | 4         |
+| Steps                   | 1.06e+06  |
+| Epsilon                 | 0.05      |
+| Episodes                | 24        |
+| AverageReturn           | -18.1     |
+| AverageDiscountedReturn | -0.29507  |
+| TDError^2               | 0.0048885 |
+---------------------------------------
+---------------------------------------
+| Iteration               | 5         |
+| Steps                   | 1.07e+06  |
+| Epsilon                 | 0.05      |
+| Episodes                | 28        |
+| AverageReturn           | -17.3     |
+| AverageDiscountedReturn | -0.40858  |
+| TDError^2               | 0.0043649 |
+---------------------------------------

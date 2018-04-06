@@ -26,6 +26,8 @@ import pickle
 import click
 import gym
 
+import numpy as np
+
 from simpledqn.replay_buffer import ReplayBuffer
 import logger
 from simpledqn.wrappers import NoopResetEnv, EpisodicLifeEnv
@@ -206,6 +208,19 @@ class DQN(object):
         # Hint3: You might also find https://docs.chainer.org/en/stable/reference/generated/chainer.functions.select_item.html useful
         loss = C.Variable(np.array([0.]))  # TODO: replace this line
         "*** YOUR CODE HERE ***"
+        N = l_obs.data.shape[0]
+
+        # set gamma to zero for those states that are terminal
+        discounts = np.array([
+            0.0 if l_done.data[i] else self._discount
+            for i in range(N)
+        ])
+        # get Q value estimate from Q-target network
+        y = l_rew + discounts * F.max(self._qt.forward(l_next_obs), axis=1)
+
+        # compute the loss using the current Q-network ont the taken actions
+        loss = F.mean((y - F.select_item(self._q.forward(l_obs), l_act)) ** 2)
+
         return loss
 
     def compute_double_q_learning_loss(self, l_obs, l_act, l_rew, l_next_obs, l_done):
@@ -224,6 +239,19 @@ class DQN(object):
         # Hint3: You might also find https://docs.chainer.org/en/stable/reference/generated/chainer.functions.select_item.html useful
         loss = C.Variable(np.array([0.]))  # TODO: replace this line
         "*** YOUR CODE HERE ***"
+        N = l_obs.data.shape[0]
+
+        # set gamma to zero for those states that are terminal
+        discounts = np.array([
+            0.0 if l_done.data[i] else self._discount
+            for i in range(N)
+        ])
+        # get Q value estimate from Q-target network
+        q_indices = F.argmax(self._q.forward(l_next_obs), axis=1)
+        y = l_rew + discounts * F.select_item(self._qt.forward(l_next_obs), q_indices)
+
+        # compute the loss using the current Q-network ont the taken actions
+        loss = F.mean((y - F.select_item(self._q.forward(l_obs), l_act)) ** 2)
         return loss
 
     def train_q(self, l_obs, l_act, l_rew, l_next_obs, l_done):
