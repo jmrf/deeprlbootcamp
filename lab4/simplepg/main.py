@@ -48,6 +48,10 @@ def point_get_grad_logp_action(theta, ob, action):
     """
     grad = np.zeros_like(theta)
     "*** YOUR CODE HERE ***"
+    ob_1 = include_bias(ob)
+    mean = theta.dot(ob_1)
+    zs = action - mean
+    grad = np.outer(zs, ob_1.T)
     return grad
 
 
@@ -114,6 +118,11 @@ def cartpole_get_grad_logp_action(theta, ob, action):
     """
     grad = np.zeros_like(theta)
     "*** YOUR CODE HERE ***"
+    p_actions = softmax(compute_logits(theta, ob))
+    e_a = np.zeros(theta.shape[0])
+    e_a[action] = 1
+    ob_1 = include_bias(ob)
+    grad = np.outer((e_a - p_actions), ob_1.T)
     return grad
 
 
@@ -241,13 +250,16 @@ def main(env_id, batch_size, discount, learning_rate, n_itrs, render, use_baseli
                     :param a_t: Either a vector of size |A| or an integer, depending on the environment
                     :param r_t: A scalar
                     :param b_t: A scalar
-                    :param get_grad_logp_action: A function, mapping from (theta, ob, action) to the gradient (a 
+                    :param get_grad_logp_action: A function, mapping from (theta, ob, action) to the gradient (a
                     matrix of size |A| * (|S|+1) )
                     :return: A tuple, consisting of a scalar and a matrix of size |A| * (|S|+1)
                     """
                     R_t = 0.
                     pg_theta = np.zeros_like(theta)
                     "*** YOUR CODE HERE ***"
+                    grad_logp = get_grad_logp_action(theta, s_t, a_t)
+                    R_t =  discount * R_tplus1 + r_t
+                    pg_theta = grad_logp * (R_t - b_t)
                     return R_t, pg_theta
 
                 # Test the implementation, but only once
@@ -272,13 +284,15 @@ def main(env_id, batch_size, discount, learning_rate, n_itrs, render, use_baseli
 
         def compute_baselines(all_returns):
             """
-            :param all_returns: A list of size T, where the t-th entry is a list of numbers, denoting the returns 
+            :param all_returns: A list of size T, where the t-th entry is a list of numbers, denoting the returns
             collected at time step t across different episodes
             :return: A vector of size T
             """
             baselines = np.zeros(len(all_returns))
             for t in range(len(all_returns)):
                 "*** YOUR CODE HERE ***"
+                b_t = np.mean(all_returns[t])
+                baselines[t] = 0.0 if np.isnan(b_t) else b_t
             return baselines
 
         if use_baseline:
@@ -297,11 +311,11 @@ def main(env_id, batch_size, discount, learning_rate, n_itrs, render, use_baseli
             def compute_fisher_matrix(theta, get_grad_logp_action, all_observations, all_actions):
                 """
                 :param theta: A matrix of size |A| * (|S|+1)
-                :param get_grad_logp_action: A function, mapping from (theta, ob, action) to the gradient (a matrix 
+                :param get_grad_logp_action: A function, mapping from (theta, ob, action) to the gradient (a matrix
                 of size |A| * (|S|+1) )
                 :param all_observations: A list of vectors of size |S|
                 :param all_actions: A list of vectors of size |A|
-                :return: A matrix of size (|A|*(|S|+1)) * (|A|*(|S|+1)), i.e. #columns and #rows are the number of 
+                :return: A matrix of size (|A|*(|S|+1)) * (|A|*(|S|+1)), i.e. #columns and #rows are the number of
                 entries in theta
                 """
                 d = len(theta.flatten())
