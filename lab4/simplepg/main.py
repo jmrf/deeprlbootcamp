@@ -305,7 +305,6 @@ def main(env_id, batch_size, discount, learning_rate, n_itrs, render, use_baseli
         grad = grad / (np.linalg.norm(grad) + 1e-8)
 
         if not natural:
-
             theta += learning_rate * grad
         else:
             def compute_fisher_matrix(theta, get_grad_logp_action, all_observations, all_actions):
@@ -321,6 +320,12 @@ def main(env_id, batch_size, discount, learning_rate, n_itrs, render, use_baseli
                 d = len(theta.flatten())
                 F = np.zeros((d, d))
                 "*** YOUR CODE HERE ***"
+                # NOTE: the Fisher Information Matrix (FIM) expects theta to be a vector:
+                # https://en.wikipedia.org/wiki/Fisher_information
+                for i in range(len(all_observations)):
+                    grad = get_grad_logp_action(theta, all_observations[i], all_actions[i]).flatten()
+                    F += np.outer(grad, grad.T)
+                F /= len(all_observations)
                 return F
 
             def compute_natural_gradient(F, grad, reg=1e-4):
@@ -332,6 +337,8 @@ def main(env_id, batch_size, discount, learning_rate, n_itrs, render, use_baseli
                 """
                 natural_grad = np.zeros_like(grad)
                 "*** YOUR CODE HERE ***"
+                F_inv = np.linalg.inv(F + reg * np.eye(F.shape[0]))
+                natural_grad = F_inv.dot(grad.flatten()).reshape(grad.shape)
                 return natural_grad
 
             def compute_step_size(F, natural_grad, natural_step_size):
@@ -343,6 +350,8 @@ def main(env_id, batch_size, discount, learning_rate, n_itrs, render, use_baseli
                 """
                 step_size = 0.
                 "*** YOUR CODE HERE ***"
+                natural_grad_flat = natural_grad.flatten()
+                step_size = np.sqrt(2 * natural_step_size / natural_grad_flat.dot(F).dot(natural_grad_flat))
                 return step_size
 
             test_once(compute_fisher_matrix)
