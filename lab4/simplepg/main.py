@@ -322,6 +322,9 @@ def main(env_id, batch_size, discount, learning_rate, n_itrs, render, use_baseli
                 "*** YOUR CODE HERE ***"
                 # NOTE: the Fisher Information Matrix (FIM) expects theta to be a vector:
                 # https://en.wikipedia.org/wiki/Fisher_information
+                # The Fisher Matrix is the metric under which we measure the difference in the
+                # gradient. If this Matrix was the Identity matrix we would be calculating
+                # an Euclidean distance.
                 for i in range(len(all_observations)):
                     grad = get_grad_logp_action(theta, all_observations[i], all_actions[i]).flatten()
                     F += np.outer(grad, grad.T)
@@ -337,7 +340,7 @@ def main(env_id, batch_size, discount, learning_rate, n_itrs, render, use_baseli
                 """
                 natural_grad = np.zeros_like(grad)
                 "*** YOUR CODE HERE ***"
-                F_inv = np.linalg.inv(F + reg * np.eye(F.shape[0]))
+                F_inv = np.linalg.inv(F + reg * np.eye(F.shape[0]))     # + reg to ensure F is positive definite
                 natural_grad = F_inv.dot(grad.flatten()).reshape(grad.shape)
                 return natural_grad
 
